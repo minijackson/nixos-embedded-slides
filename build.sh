@@ -12,4 +12,4 @@
 #     dependencies
 
 
-pandoc slides.md -t beamer -so slides.pdf --highlight-style breezedark --pdf-engine xelatex
+pandoc slides.md -t beamer -so slides.pdf --highlight-style breezedark --pdf-engine xelatex "$@"
