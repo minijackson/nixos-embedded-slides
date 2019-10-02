@@ -216,7 +216,7 @@ a function that returns a function ("currying"), or use named parameters.
 
 
 :::::: {.columns}
-::: {.column witdh="60%"}
+::: {.column width="60%"}
 
 ```nix
 let
@@ -231,7 +231,7 @@ in
 ```
 
 :::
-::: {.column witdh="40%"}
+::: {.column width="40%"}
 
 Gives:
 
@@ -630,13 +630,13 @@ Type=simple
 ## Adding yourself to the environment---Environment variables
 
 ```
-$ echo $XDG_DATA_DIRS
-/run/opengl-driver/share:
-/run/opengl-driver-32/share:
-/home/minijackson/.nix-profile/share:
-/etc/profiles/per-user/minijackson/share:
-/nix/var/nix/profiles/default/share:
-/run/current-system/sw/share
+$ echo $PATH
+/home/minijackson/bin:
+/run/wrappers/bin:
+/home/minijackson/.nix-profile/bin:
+/etc/profiles/per-user/minijackson/bin:
+/nix/var/nix/profiles/default/bin:
+/run/current-system/sw/bin
 ```
 
 ::: notes
@@ -651,14 +651,121 @@ $ echo $XDG_DATA_DIRS
 
 ## Adding yourself to the environment---Tool specific
 
-TODO: find a tool
+Fontconfig
+:  - Adds individual font paths into an XML file
+ - Links the XML file into `/etc/fonts/fonts.conf`
+
+Networking
+:  - UDev rules
+ - Systemd oneshot services
+ - In the end are all linked in the environment (`/etc/{systemd,udev}`)
+
+::: notes
+
+- It's pretty hard to find something that can't be inserted into the user
+  environment via symbolic links or env variables.
+- Usually very specific cases, or badly programmed tools
+
+
+:::
 
 ## How we do it
+
+Introducing: the module system!
+
+. . .
+
+```nix
+{ ... }:
+{
+  services.openssh.enable = true;
+}
+```
 
 ::: notes
 
 - We talked about how it is possible for NixOS to do it, now we talk about how
   us devs write the code
+
+- We want a machine with an SSH server
+- *describe what we would do in a conventional distribution, or embedded build
+  system*
+
+---
+
+- Will add the `sshd` user
+- Will create a systemd service file, linked into `/etc`, which has the
+  "openssh" package in its closure.
+- Will add a default `sshd_config`
+- Will add a PreStart script that generates the host key if non-existent
+- Allow the 22 tcp port in the firewall (special ssh case)
+- sshd PAM module
+- Note: this configuration alone is two lines away from compiling:
+
+
+:::
+
+## Being pedantic
+
+```nix
+{ ... }:
+{
+  fileSystems."/".fsType = "tmpfs";
+  boot.loader.grub.enable = false;
+  services.openssh.enable = true;
+}
+```
+
+## Customizing the SSH server config
+
+```nix
+{ ... }:
+{
+  services.openssh = {
+    enable = true;
+    allowSFTP = false;
+    # Violates the privacy of users
+    logLevel = "DEBUG";
+    extraConfig = ''
+      # Extra verbatim contents of sshd_config
+    '';
+  }
+}
+```
+
+::: notes
+
+- Compared to the previous example, this on only changes the final
+  `sshd_config` file
+
+
+:::
+
+## Customizing the SSH server config
+
+```nix
+{ ... }:
+{
+  services.openssh = {
+    enable = true;
+    openFirewall = false;
+    startWhenNeeded = true;
+    listenAddresses = [
+      { addr = "192.168.3.1"; port = 22; }
+      { addr = "0.0.0.0"; port = 64022; }
+    ];
+  }
+}
+```
+
+::: notes
+
+- Start when needed will add a systemd socket that will only listen to the
+  content of `listenAddresses` (if defined).
+- But the content of `listenAddresses` is also added to the `sshd_config`.
+- This gives us a higher level description of what we want in our system.
+- They also give us the means to describe our higher level components, should
+  nixpkgs not have the appropriate module.
 
 
 :::
@@ -678,6 +785,7 @@ Failed assertions:
 - [x] Use good Markdown / Beamer template
 - [ ] Pinning repo version
 - [x] How to use different versions
+- [ ] Modules can call other modules (and that's what they do **all** the time)
 - [ ] How to build an image
 - [ ] Add some images to temporise the talk
 - [ ] Talk about service tests!!!
@@ -712,6 +820,25 @@ Failed assertions:
 
 That's all folks!
 
-. . .
+---
 
 Questions?
+
+Slide sources
+ ~ <https://github.com/minijackson/nixos-embedded-slides/>
+
+:::::: {.columns}
+::: {.column width="40%"}
+
+- <https://nixos.org/>
+- <https://nixos.wiki/>
+
+:::
+::: {.column width="60%"}
+
+- <https://nixos.org/nix/manual/>
+- <https://nixos.org/nixpkgs/manual/>
+- <https://nixos.org/nixos/manual/>
+
+:::
+::::::
