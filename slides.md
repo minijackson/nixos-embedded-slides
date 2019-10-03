@@ -191,13 +191,17 @@ of the "package function".
 
 ```nix
 {
-	int = 1;
-	boolean = true;
-	string = "hello ${world}!";
-	"attribute set" = { a = 1; b = 2; };
-	list = [ 1 2 "hello" ];
-	function = a: builtins.toString a;
-	"function w/ named parameters" = { a, b, c ? "default"}: a;
+  int = 1;
+  boolean = true;
+  string = "hello ${world}!";
+  multilineString = ''
+    hello
+    initial indentation is removed!
+  '';
+  "attribute set" = { a = 1; b = 2; };
+  list = [ 1 2 "hello" ];
+  function = a: builtins.toString a;
+  "function w/ named parameters" = { a, b, c ? "default"}: a;
 }
 ```
 
@@ -927,6 +931,7 @@ $ nix build -f default.nix \
 - [ ] Add intro? about problems that I had in Buildroot (non-determinism, no
   auto-recompile)
 - [ ] Talk about nix-shell
+- [ ] Talk about nix-shell scripts
 - [ ] Talk about nixops
 - [ ] Talk about choosing generation at boot
 - [ ] Have a functional programming intro
