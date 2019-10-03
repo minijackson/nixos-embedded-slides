@@ -517,6 +517,10 @@ echo 'Hello, World!'
 
 :::
 
+## Overlays
+
+TODO
+
 ## Using different versions of the same package---Generic
 
 ```bash
@@ -770,6 +774,114 @@ Introducing: the module system!
 
 :::
 
+## More examples
+
+```nix
+{ ... }:
+{
+  systemd.services.myService = {
+    description = "My really awesome service";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "network.target" ];
+    serviceConfig = {
+      ExecStart = "${myPackage}/bin/myExec";
+      DynamicUser = true;
+    };
+  };
+}
+```
+
+::: notes
+
+- In the previous example, the openssh module created a systemd service for us.
+  Now we create or own systemd service.
+- In fact the openssh module will (in part) "modify" the systemd module.
+- And in turn, the systemd module will "modify" the module that sets up `/etc`.
+- There is no defined "order" / "hierarchy" of modules, the laziness of the Nix
+  language permits that (this can theoretically lead to infinite loops).
+- So really, the Nix language does this in reverse (activation script -> `/etc`
+  -> systemd -> openssh -> maybe higher level concepts)
+
+
+:::
+
+## Moaaar examples
+
+```nix
+{ ... }:
+{
+  containers = {
+    myContainer = {
+      config = { ... }: { services.postgresql.enable = true; };
+    };
+    myOtherContainer = {
+      config = { ... }: { services.nginx.enable = true; };
+      forwardPorts = [
+        { containerPort = 80; hostPort = 8080; protocol = "tcp"; }
+      ];
+    };
+  };
+}
+```
+
+## Composition
+
+```nix
+{ ... }:
+{
+  imports = [
+    ./hardware-configuration.nix
+    ./usecases/ssh-server.nix
+    ./usecases/web-interface.nix
+  ];
+}
+```
+
+## "Overridability"---Provided
+
+```nix
+{ ... }:
+{
+  hardware.bluetooth = {
+    enable = true;
+    package = myBluezFork;
+  };
+}
+```
+
+## "Overridability"---Forced
+
+```nix
+{ lib, ... }:
+{
+  services.unbound.enable = true;
+  # These tricks are done by "professionals".
+  # Don't try this at home
+  systemd.services.unbound.serviceConfig.ProtectSystem =
+    lib.mkForce false;
+}
+```
+
+## "Overridability"---Commando mode
+
+```nix
+{ ... }:
+{
+  nixpkgs.overlays = [ (self: super: {
+    bluez = myBluezFork;
+  } ) ];
+}
+```
+
+Otherwise, you can just copy and edit the official module file.
+
+::: notes
+
+- Changing things in overlays also changes packages dependencies, which in the
+  case of Bluez, there are quite a lot.
+
+:::
+
 ## Assertions
 
 ```
@@ -779,6 +891,26 @@ Failed assertions:
 ```
 
 # The embedded world
+
+## Proper project structure
+
+<https://github.com/illegalprime/nixos-on-arm>
+
+```nix
+{ ... }:
+{
+  imports = [
+    <machine>
+    <image>
+  ];
+}
+```
+
+```
+$ nix build -f default.nix \
+    -I machine=./machines/MY_BOARD \
+    -I image=./images/MY_CONFIGURATION
+```
 
 ## TODO
 

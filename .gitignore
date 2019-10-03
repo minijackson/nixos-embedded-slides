@@ -1,2 +1,5 @@
 *.sty
 /slides.pdf
+
+result
+result-*
