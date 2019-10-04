@@ -4,17 +4,23 @@ author: Rémi Nicole
 date: 2019-10-09
 slide-level: 2
 aspectratio: 169
+
 theme: metropolis
+colortheme: owl
+beameroption: "show notes on second screen=right"
+
 toc: true
 highlightstyle: breezedark
 lang: en-US
 
+
 header-includes: |
+  ```{=latex}
   \usepackage{csquotes}
   \usepackage{pgfpages}
-  \setbeameroption{show notes on second screen=right}
+  \usepackage{dirtree}
+  %\usepackage{beamerarticle}
 
-  \usecolortheme{owl}
   \setbeamercolor{section in toc}{
     use=normal text,
     fg=normal text.fg
@@ -25,6 +31,12 @@ header-includes: |
   }
 
   \usepackage{fvextra}
+
+  \usepackage[outputdir=build]{minted}
+  \usemintedstyle{dracula}
+  \definecolor{mybg}{rgb}{0.207843, 0.219608, 0.27451}
+  \setminted{bgcolor=mybg,tabsize=4,breaklines}
+  ```
 ---
 
 # Projects and concepts
@@ -171,18 +183,23 @@ of the "package function".
 
 ## Nix---Example output paths
 
+```{=latex}
+\dirtree{%
+	.1 /nix/store/8is5yfpd095i8pcg71pb9wxv6y6d4gfv-openssh-7.9p1.
+	.2 bin.
+	.3 ssh.
+	.3 \ldots.
+	.2 etc.
+	.3 ssh.
+	.4 ssh\_config.
+	.5 \ldots.
+	.2 share.
+	.3 man.
+	.4 \ldots.
+}
 ```
-/nix/store/8is5yfpd095i8pcg71pb9wxv6y6d4gfv-openssh-7.9p1
-├── bin
-│   ├── ssh
-│   └── ...
-├── etc
-│   └── ssh
-│       ├── ssh_config
-│       └── ...
-└── share
-    └── man
-        └── ...
+
+```
 /nix/store/chdjidjcmjs610024chncbin4bx211f2-asound.conf
 /nix/store/486r3d12gc042yric302jg14in7j3jwm-i3.conf
 ```
@@ -433,6 +450,62 @@ derive2 {
 
 :::
 
+## Examples with non dependencies parameters
+
+```{=latex}
+\begin{minted}{nix}
+{ stdenv, cmake, ninja, fetchFromGitHub
+, static ? false }:
+
+stdenv.mkDerivation rec {
+  pname = "gtest";
+  version = "1.8.1";
+  outputs = [ "out" "dev" ];
+  nativeBuildInputs = [ cmake ninja ];
+
+  cmakeFlags = stdenv.lib.optional (!static) "-DBUILD_SHARED_LIBS=ON";
+  # src = ...;
+  # patches = [ ... ];
+  # meta = ...;
+}
+\end{minted}
+```
+
+```
+```
+
+---
+
+```{=latex}
+\begin{minted}{nix}
+{ stdenv, fetchurl, perl, libiconv, zlib, popt
+, enableACLs ? !(stdenv.isDarwin || stdenv.isSunOS || stdenv.isFreeBSD)
+, acl ? null, enableCopyDevicesPatch ? false }:
+
+assert enableACLs -> acl != null;
+with stdenv.lib;
+stdenv.mkDerivation rec {
+  # pname = "rsync"; ...
+  srcs = [mainSrc] ++ optional enableCopyDevicesPatch patchesSrc;
+  patches = optional enableCopyDevicesPatch "./patches/copy-devices.diff";
+
+  buildInputs = [libiconv zlib popt] ++ optional enableACLs acl;
+}
+\end{minted}
+```
+
+```
+```
+
+::: notes
+
+- Some usual examples include:
+	- Build static / shared versions
+	- Build documentation (usually in its own output)
+	- Enable / Disable compilation features (helps reduce dependencies)
+
+:::
+
 ## How do you call the function
 
 default.nix:
@@ -446,8 +519,10 @@ in
 
 We run:
 
-```bash
-nix build --file default.nix
+```{=latex}
+\begin{minted}{console}
+$ nix build --file default.nix
+\end{minted}
 ```
 
 ::: notes
@@ -472,10 +547,12 @@ writeShellScriptBin "myScript" "echo 'Hello, World!'"
 
 We get as output path:
 
-```
-./result/
-└── bin
-    └── myScript
+```{=latex}
+\dirtree{%
+	.1 ./result/.
+	.2 bin.
+	.3 myScript.
+}
 ```
 
 ```
@@ -523,9 +600,74 @@ echo 'Hello, World!'
 
 ## Overlays
 
-TODO
+```nix
+let
+  pkgs = import <nixpkgs> {
+    overlays = [
+      (self: super: {
+        myAlias = super.pandoc;
+        inherit (super.llvmPackages_7)
+          clang libclang llvm;
+        myPackage = self.callPackage ./myProject/default.nix { };
+      } )
+    ];
+  };
+in
+  pkgs.myPackage
+```
+
+::: notes
+
+- Because the `callPackage` is from `self`, `myPackage` is able to use
+  `myAlias` and if it uses `clang`, `libclang`, or `llvm`, it will be from
+  version 7.
+- Also, every package that doesn't explicitly specify its `llvm` version will
+  now use version 7.
+- This might not be what we want.
+
+
+:::
+
+## Overriding parameters
+
+```nix
+self: super: {
+  gtest = super.gtest.override { static = true; };
+  myRsync = super.rsync.override { enableACLs = false; };
+
+  myGimp = super.gimp-with-plugins.override {
+    plugins = [ super.gimpPlugins.gmic ];
+  };
+
+  rsnapshot = super.rsnapshot.override { rsync = self.myRsync; };
+}
+```
+
+## Overriding attributes
+
+```nix
+self: super: {
+  myRedshift = super.redshift.overrideAttrs (oldAttrs: {
+    src = self.fetchFromGitHub {
+      owner = "minus7";
+      repo = "redshift";
+      rev = "...";
+      sha256 = "...";
+    };
+  });
+}
+```
+
+::: notes
+
+- Useful for ie. adding patches without having to copy the definition.
+
+
+:::
 
 ## Using different versions of the same package---Generic
+
+. . .
 
 ```bash
 #! /nix/store/...-bash-4.4-p23/bin/bash -e
@@ -544,7 +686,10 @@ exec -a "$0" "/nix/store/...-kodi-18.1/bin/.kodi-wrapped" \
 ::: notes
 
 - This is actually called by another wrapper who tells Kodi where to find its
-  data
+  data.
+- Everything you see here is automated, writing derivations is much much less
+  complicated.
+
 
 :::
 

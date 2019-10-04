@@ -1,5 +1,7 @@
 *.sty
 /slides.pdf
+/slides.tex
+/build
 
 result
 result-*

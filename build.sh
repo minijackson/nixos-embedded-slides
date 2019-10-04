@@ -12,4 +12,11 @@
 #     dependencies
 
 
-pandoc slides.md -t beamer -so slides.pdf --highlight-style breezedark --pdf-engine xelatex "$@"
+pandoc slides.md -t beamer -so slides.tex \
+	--highlight-style breezedark \
+	--pdf-engine xelatex \
+	--pdf-engine-opt=-aux-directory=./build \
+	--pdf-engine-opt=-shell-escape \
+	"$@"
+
+latexmk -shell-escape -xelatex -8bit -output-directory=./build slides
