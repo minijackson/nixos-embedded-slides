@@ -206,7 +206,8 @@ of the "package function".
 
 ## Nix---Language (Types)
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 {
   int = 1;
   boolean = true;
@@ -217,9 +218,13 @@ of the "package function".
   '';
   "attribute set" = { a = 1; b = 2; };
   list = [ 1 2 "hello" ];
-  function = a: builtins.toString a;
+  function = a: toString a;
   "function w/ named parameters" = { a, b, c ? "default"}: a;
 }
+\end{minted}
+```
+
+```
 ```
 
 ::: notes
@@ -239,7 +244,8 @@ a function that returns a function ("currying"), or use named parameters.
 :::::: {.columns}
 ::: {.column width="60%"}
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 let
   a = 1;
   b = a + 1;
@@ -249,6 +255,7 @@ in
     d = if a == 1 then 2 else 3;
     e = c "world";
   }
+\end{minted}
 ```
 
 :::
@@ -256,11 +263,16 @@ in
 
 Gives:
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 {
   d = 2;
   e = "hello world!";
 }
+\end{minted}
+```
+
+```
 ```
 
 :::
@@ -287,7 +299,8 @@ Gives:
 :::::: {.columns}
 ::: {.column witdh="60%"}
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 let
   a = 1;
   b = a + 1;
@@ -298,6 +311,10 @@ in
     e = with c; d + 3;
     f = e + 1;
   }
+\end{minted}
+```
+
+```
 ```
 
 :::
@@ -305,12 +322,17 @@ in
 
 Gives:
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 {
   b = 2;
   e = 45;
   f = 46;
 }
+\end{minted}
+```
+
+```
 ```
 
 :::
@@ -327,12 +349,17 @@ Gives:
 
 What does that do?
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 rec {
   a = {
     inherit a;
   };
 }
+\end{minted}
+```
+
+```
 ```
 
 ::: notes
@@ -346,7 +373,8 @@ rec {
 
 ## An example Nixpkgs derivation
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 { stdenv, fetchurl }:
 
 stdenv.mkDerivation rec {
@@ -359,6 +387,10 @@ stdenv.mkDerivation rec {
   };
 
   doCheck = true;
+\end{minted}
+```
+
+```
 ```
 
 ::: notes
@@ -378,7 +410,8 @@ stdenv.mkDerivation rec {
 
 ---
 
-```nix
+```{=latex}
+\begin{minted}{nix}
   meta = with stdenv.lib; {
     description = "A program that produces a familiar, friendly greeting";
     longDescription = ''
@@ -391,6 +424,10 @@ stdenv.mkDerivation rec {
     platforms = platforms.all;
   };
 }
+\end{minted}
+```
+
+```
 ```
 
 ## Other examples {.shrink}
@@ -399,7 +436,8 @@ stdenv.mkDerivation rec {
 :::::: {.columns}
 ::: {.column}
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 { stdenv, meson, ninja, pkgconfig
 , qtbase, qtconnectivity }:
 
@@ -413,12 +451,17 @@ stdenv.mkDerivation rec {
   mesonBuildType = "debug";
   src = ./.;
 }
+\end{minted}
+```
+
+```
 ```
 
 :::
 ::: {.column}
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 derive2 {
   name = "ggplot2";
   version = "3.2.0";
@@ -428,6 +471,10 @@ derive2 {
     scales tibble viridisLite
     withr ];
 };
+\end{minted}
+```
+
+```
 ```
 
 :::
@@ -510,11 +557,13 @@ stdenv.mkDerivation rec {
 
 default.nix:
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 let
   pkgs = import <nixpkgs> {};
 in
   pkgs.callPackage ./derivation.nix {}
+\end{minted}
 ```
 
 We run:
@@ -539,10 +588,12 @@ $ nix build --file default.nix
 
 If we have derivation.nix:
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 { writeShellScriptBin }:
 
 writeShellScriptBin "myScript" "echo 'Hello, World!'"
+\end{minted}
 ```
 
 We get as output path:
@@ -555,9 +606,11 @@ We get as output path:
 }
 ```
 
-```
+```{=latex}
+\begin{minted}{console}
 $ ./result/bin/myScript
 Hello, World!
+\end{minted}
 ```
 
 ::: notes
@@ -569,18 +622,20 @@ Hello, World!
 
 ---
 
-```
+```{=latex}
+\begin{minted}{console}
 $ ls -l result
 result -> /nix/store/a7db5d4v5b2pxppl8drb30ljx9z0kwg0-myScript
+\end{minted}
 ```
-
-. . .
 
 `./result/bin/myScript` is:
 
-```bash
+```{=latex}
+\begin{minted}{bash}
 #!/nix/store/cinw572b38aln37glr0zb8lxwrgaffl4-bash-4.4-p23/bin/bash
 echo 'Hello, World!'
+\end{minted}
 ```
 
 ::: notes
@@ -600,7 +655,8 @@ echo 'Hello, World!'
 
 ## Overlays
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 let
   pkgs = import <nixpkgs> {
     overlays = [
@@ -614,6 +670,10 @@ let
   };
 in
   pkgs.myPackage
+\end{minted}
+```
+
+```
 ```
 
 ::: notes
@@ -630,7 +690,8 @@ in
 
 ## Overriding parameters
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 self: super: {
   gtest = super.gtest.override { static = true; };
   myRsync = super.rsync.override { enableACLs = false; };
@@ -641,11 +702,16 @@ self: super: {
 
   rsnapshot = super.rsnapshot.override { rsync = self.myRsync; };
 }
+\end{minted}
+```
+
+```
 ```
 
 ## Overriding attributes
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 self: super: {
   myRedshift = super.redshift.overrideAttrs (oldAttrs: {
     src = self.fetchFromGitHub {
@@ -656,6 +722,10 @@ self: super: {
     };
   });
 }
+\end{minted}
+```
+
+```
 ```
 
 ::: notes
@@ -669,7 +739,8 @@ self: super: {
 
 . . .
 
-```bash
+```{=latex}
+\begin{minted}{bash}
 #! /nix/store/...-bash-4.4-p23/bin/bash -e
 export PATH='/nix/store/...-python-2.7.16/bin:
   /nix/store/...-glxinfo-8.4.0/bin:
@@ -681,6 +752,10 @@ export LD_LIBRARY_PATH='/nix/store/...-curl-7.64.0/lib:
   ...'${LD_LIBRARY_PATH:+':'}$LD_LIBRARY_PATH
 exec -a "$0" "/nix/store/...-kodi-18.1/bin/.kodi-wrapped" \
   "${extraFlagsArray[@]}" "$@"
+\end{minted}
+```
+
+```
 ```
 
 ::: notes
@@ -695,7 +770,8 @@ exec -a "$0" "/nix/store/...-kodi-18.1/bin/.kodi-wrapped" \
 
 ## Using different versions of the same package---ELF
 
-```
+```{=latex}
+\begin{minted}{text}
 $ readelf -d coreutils
 ...
 Bibliothèque partagée: [librt.so.1]
@@ -709,11 +785,16 @@ Bibliothèque runpath:[
   /nix/store/...-glibc-2.27/lib
 ]
 ...
+\end{minted}
+```
+
+```
 ```
 
 ## Using different versions of the same package---Python
 
-```python
+```{=latex}
+\begin{minted}{python}
 # imports...
 sys.argv[0] = '/nix/store/...-carla-2.0.0/share/carla/carla'
 functools.reduce(
@@ -726,6 +807,10 @@ functools.reduce(
   ],
   site._init_pathinfo())
 # ...
+\end{minted}
+```
+
+```
 ```
 
 ::: notes
@@ -745,16 +830,20 @@ functools.reduce(
 
 ## Adding yourself to the environment---Symbolic links
 
-```
+```{=latex}
+\begin{minted}{console}
 $ ls -l /etc/static/ssh/ssh_config
 /etc/static/ssh/ssh_config -> /nix/store/...-etc-ssh_config
+\end{minted}
+```
+
+```
 ```
 
 ---
 
-```
-$ systemctl cat sshd.service
-
+```{=latex}
+\begin{minted}{ini}
 # /nix/store/...-unit-sshd.service/sshd.service
 # ...
 [Service]
@@ -766,6 +855,10 @@ ExecStartPre=/nix/store/...-unit-script-sshd-pre-start
 KillMode=process
 Restart=always
 Type=simple
+\end{minted}
+```
+
+```
 ```
 
 ::: notes
@@ -782,7 +875,8 @@ Type=simple
 
 ## Adding yourself to the environment---Environment variables
 
-```
+```{=latex}
+\begin{minted}{console}
 $ echo $PATH
 /home/minijackson/bin:
 /run/wrappers/bin:
@@ -790,6 +884,10 @@ $ echo $PATH
 /etc/profiles/per-user/minijackson/bin:
 /nix/var/nix/profiles/default/bin:
 /run/current-system/sw/bin
+\end{minted}
+```
+
+```
 ```
 
 ::: notes
@@ -828,11 +926,16 @@ Introducing: the module system!
 
 . . .
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 { ... }:
 {
   services.openssh.enable = true;
 }
+\end{minted}
+```
+
+```
 ```
 
 ::: notes
@@ -860,18 +963,24 @@ Introducing: the module system!
 
 ## Being pedantic
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 { ... }:
 {
   fileSystems."/".fsType = "tmpfs";
   boot.loader.grub.enable = false;
   services.openssh.enable = true;
 }
+\end{minted}
+```
+
+```
 ```
 
 ## Customizing the SSH server config
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 { ... }:
 {
   services.openssh = {
@@ -884,6 +993,10 @@ Introducing: the module system!
     '';
   }
 }
+\end{minted}
+```
+
+```
 ```
 
 ::: notes
@@ -896,7 +1009,8 @@ Introducing: the module system!
 
 ## Customizing the SSH server config
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 { ... }:
 {
   services.openssh = {
@@ -909,6 +1023,7 @@ Introducing: the module system!
     ];
   }
 }
+\end{minted}
 ```
 
 ::: notes
@@ -925,7 +1040,8 @@ Introducing: the module system!
 
 ## More examples
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 { ... }:
 {
   systemd.services.myService = {
@@ -938,6 +1054,7 @@ Introducing: the module system!
     };
   };
 }
+\end{minted}
 ```
 
 ::: notes
@@ -956,7 +1073,8 @@ Introducing: the module system!
 
 ## Moaaar examples
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 { ... }:
 {
   containers = {
@@ -971,11 +1089,16 @@ Introducing: the module system!
     };
   };
 }
+\end{minted}
+```
+
+```
 ```
 
 ## Composition
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 { ... }:
 {
   imports = [
@@ -984,11 +1107,16 @@ Introducing: the module system!
     ./usecases/web-interface.nix
   ];
 }
+\end{minted}
+```
+
+```
 ```
 
 ## "Overridability"---Provided
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 { ... }:
 {
   hardware.bluetooth = {
@@ -996,11 +1124,16 @@ Introducing: the module system!
     package = myBluezFork;
   };
 }
+\end{minted}
+```
+
+```
 ```
 
 ## "Overridability"---Forced
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 { lib, ... }:
 {
   services.unbound.enable = true;
@@ -1009,17 +1142,26 @@ Introducing: the module system!
   systemd.services.unbound.serviceConfig.ProtectSystem =
     lib.mkForce false;
 }
+\end{minted}
+```
+
+```
 ```
 
 ## "Overridability"---Commando mode
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 { ... }:
 {
   nixpkgs.overlays = [ (self: super: {
     bluez = myBluezFork;
   } ) ];
 }
+\end{minted}
+```
+
+```
 ```
 
 Otherwise, you can just copy and edit the official module file.
@@ -1033,10 +1175,15 @@ Otherwise, you can just copy and edit the official module file.
 
 ## Assertions
 
-```
+```{=latex}
+\begin{minted}{text}
 Failed assertions:
 - services.xserver.xkbOptions = "eurosign:e" is useless on fr/ch
   layouts and plays badly with bépo
+\end{minted}
+```
+
+```
 ```
 
 # The embedded world
@@ -1045,7 +1192,8 @@ Failed assertions:
 
 <https://github.com/illegalprime/nixos-on-arm>
 
-```nix
+```{=latex}
+\begin{minted}{nix}
 { ... }:
 {
   imports = [
@@ -1053,12 +1201,18 @@ Failed assertions:
     <image>
   ];
 }
+\end{minted}
 ```
 
-```
+```{=latex}
+\begin{minted}{console}
 $ nix build -f default.nix \
     -I machine=./machines/MY_BOARD \
     -I image=./images/MY_CONFIGURATION
+\end{minted}
+```
+
+```
 ```
 
 ## TODO

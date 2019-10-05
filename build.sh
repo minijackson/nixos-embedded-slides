@@ -19,4 +19,10 @@ pandoc slides.md -t beamer -so slides.tex \
 	--pdf-engine-opt=-shell-escape \
 	"$@"
 
-latexmk -shell-escape -xelatex -8bit -output-directory=./build slides
+latexmk -shell-escape \
+	-xelatex \
+	-8bit \
+	-interaction=nonstopmode \
+	-verbose \
+	-file-line-error \
+	-output-directory=./build slides
