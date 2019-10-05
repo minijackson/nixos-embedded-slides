@@ -52,6 +52,13 @@ Heads Up
   yet.
 - This is more a call to try, tinker, experiment, contribute to the project so
   it would be production ready
+- This also is a "bottom-up" talk, which means:
+	- More technical, but
+	- Should lead to better understanding
+	- How, and why it works
+	- Maybe apply some of these concepts in your daily work (using, Buildroot,
+	  Yocto, etc.)
+
 
 :::
 
@@ -204,7 +211,7 @@ of the "package function".
 /nix/store/486r3d12gc042yric302jg14in7j3jwm-i3.conf
 ```
 
-## Nix---Language (Types)
+## Nix---Language (Types){.fragile}
 
 ```{=latex}
 \begin{minted}{nix}
@@ -224,9 +231,6 @@ of the "package function".
 \end{minted}
 ```
 
-```
-```
-
 ::: notes
 
 - There's also the "derivation", which is his own type.
@@ -238,7 +242,7 @@ a function that returns a function ("currying"), or use named parameters.
 
 :::
 
-## Nix---Language (Control Flow)
+## Nix---Language (Control Flow){.fragile}
 
 
 :::::: {.columns}
@@ -272,9 +276,6 @@ Gives:
 \end{minted}
 ```
 
-```
-```
-
 :::
 ::::::
 
@@ -293,7 +294,7 @@ Gives:
 
 :::
 
-## Nix---Language (Control Flow continued)
+## Nix---Language (Control Flow continued){.fragile}
 
 
 :::::: {.columns}
@@ -314,9 +315,6 @@ in
 \end{minted}
 ```
 
-```
-```
-
 :::
 ::: {.column witdh="40%"}
 
@@ -332,9 +330,6 @@ Gives:
 \end{minted}
 ```
 
-```
-```
-
 :::
 ::::::
 
@@ -345,7 +340,7 @@ Gives:
 
 :::
 
-## Puzzle
+## Puzzle{.fragile}
 
 What does that do?
 
@@ -359,9 +354,6 @@ rec {
 \end{minted}
 ```
 
-```
-```
-
 ::: notes
 
 - Because the language is lazy, the question we have to ask is "What do we want
@@ -371,7 +363,7 @@ rec {
 
 # How 2 perfect packaging with Nixpkgs
 
-## An example Nixpkgs derivation
+## An example Nixpkgs derivation{.fragile}
 
 ```{=latex}
 \begin{minted}{nix}
@@ -388,9 +380,6 @@ stdenv.mkDerivation rec {
 
   doCheck = true;
 \end{minted}
-```
-
-```
 ```
 
 ::: notes
@@ -430,7 +419,7 @@ stdenv.mkDerivation rec {
 ```
 ```
 
-## Other examples {.shrink}
+## Other examples{.fragile}
 
 
 :::::: {.columns}
@@ -454,9 +443,6 @@ stdenv.mkDerivation rec {
 \end{minted}
 ```
 
-```
-```
-
 :::
 ::: {.column}
 
@@ -472,9 +458,6 @@ derive2 {
     withr ];
 };
 \end{minted}
-```
-
-```
 ```
 
 :::
@@ -497,7 +480,7 @@ derive2 {
 
 :::
 
-## Examples with non dependencies parameters
+## Examples with non dependencies parameters{.fragile}
 
 ```{=latex}
 \begin{minted}{nix}
@@ -516,9 +499,6 @@ stdenv.mkDerivation rec {
   # meta = ...;
 }
 \end{minted}
-```
-
-```
 ```
 
 ---
@@ -653,7 +633,7 @@ echo 'Hello, World!'
 
 :::
 
-## Overlays
+## Overlays{.fragile}
 
 ```{=latex}
 \begin{minted}{nix}
@@ -673,9 +653,6 @@ in
 \end{minted}
 ```
 
-```
-```
-
 ::: notes
 
 - Because the `callPackage` is from `self`, `myPackage` is able to use
@@ -688,7 +665,7 @@ in
 
 :::
 
-## Overriding parameters
+## Overriding parameters{.fragile}
 
 ```{=latex}
 \begin{minted}{nix}
@@ -705,10 +682,7 @@ self: super: {
 \end{minted}
 ```
 
-```
-```
-
-## Overriding attributes
+## Overriding attributes{.fragile}
 
 ```{=latex}
 \begin{minted}{nix}
@@ -725,9 +699,6 @@ self: super: {
 \end{minted}
 ```
 
-```
-```
-
 ::: notes
 
 - Useful for ie. adding patches without having to copy the definition.
@@ -735,7 +706,7 @@ self: super: {
 
 :::
 
-## Using different versions of the same package---Generic
+## Using different versions of the same package---Generic{.fragile}
 
 . . .
 
@@ -755,9 +726,6 @@ exec -a "$0" "/nix/store/...-kodi-18.1/bin/.kodi-wrapped" \
 \end{minted}
 ```
 
-```
-```
-
 ::: notes
 
 - This is actually called by another wrapper who tells Kodi where to find its
@@ -768,10 +736,10 @@ exec -a "$0" "/nix/store/...-kodi-18.1/bin/.kodi-wrapped" \
 
 :::
 
-## Using different versions of the same package---ELF
+## Using different versions of the same package---ELF{.fragile}
 
 ```{=latex}
-\begin{minted}{text}
+\begin{minted}{console}
 $ readelf -d coreutils
 ...
 Bibliothèque partagée: [librt.so.1]
@@ -788,10 +756,7 @@ Bibliothèque runpath:[
 \end{minted}
 ```
 
-```
-```
-
-## Using different versions of the same package---Python
+## Using different versions of the same package---Python{.fragile}
 
 ```{=latex}
 \begin{minted}{python}
@@ -810,9 +775,6 @@ functools.reduce(
 \end{minted}
 ```
 
-```
-```
-
 ::: notes
 
 - Because these paths are in the closure of the app, they are guaranteed by Nix
@@ -828,16 +790,13 @@ functools.reduce(
 - In the end, the Nix package manager creates files
 - Let's use Nix to create *every* (non user data) file
 
-## Adding yourself to the environment---Symbolic links
+## Adding yourself to the environment---Symbolic links{.fragile}
 
 ```{=latex}
 \begin{minted}{console}
 $ ls -l /etc/static/ssh/ssh_config
 /etc/static/ssh/ssh_config -> /nix/store/...-etc-ssh_config
 \end{minted}
-```
-
-```
 ```
 
 ---
@@ -873,7 +832,7 @@ Type=simple
 
 :::
 
-## Adding yourself to the environment---Environment variables
+## Adding yourself to the environment---Environment variables{.fragile}
 
 ```{=latex}
 \begin{minted}{console}
@@ -885,9 +844,6 @@ $ echo $PATH
 /nix/var/nix/profiles/default/bin:
 /run/current-system/sw/bin
 \end{minted}
-```
-
-```
 ```
 
 ::: notes
@@ -920,7 +876,7 @@ Networking
 
 :::
 
-## How we do it
+## How we do it{.fragile}
 
 Introducing: the module system!
 
@@ -933,9 +889,6 @@ Introducing: the module system!
   services.openssh.enable = true;
 }
 \end{minted}
-```
-
-```
 ```
 
 ::: notes
@@ -961,7 +914,7 @@ Introducing: the module system!
 
 :::
 
-## Being pedantic
+## Being pedantic{.fragile}
 
 ```{=latex}
 \begin{minted}{nix}
@@ -974,10 +927,7 @@ Introducing: the module system!
 \end{minted}
 ```
 
-```
-```
-
-## Customizing the SSH server config
+## Customizing the SSH server config{.fragile}
 
 ```{=latex}
 \begin{minted}{nix}
@@ -994,9 +944,6 @@ Introducing: the module system!
   }
 }
 \end{minted}
-```
-
-```
 ```
 
 ::: notes
@@ -1071,7 +1018,7 @@ Introducing: the module system!
 
 :::
 
-## Moaaar examples
+## Moaaar examples{.fragile}
 
 ```{=latex}
 \begin{minted}{nix}
@@ -1092,10 +1039,7 @@ Introducing: the module system!
 \end{minted}
 ```
 
-```
-```
-
-## Composition
+## Composition{.fragile}
 
 ```{=latex}
 \begin{minted}{nix}
@@ -1110,10 +1054,7 @@ Introducing: the module system!
 \end{minted}
 ```
 
-```
-```
-
-## "Overridability"---Provided
+## "Overridability"---Provided{.fragile}
 
 ```{=latex}
 \begin{minted}{nix}
@@ -1127,10 +1068,7 @@ Introducing: the module system!
 \end{minted}
 ```
 
-```
-```
-
-## "Overridability"---Forced
+## "Overridability"---Forced{.fragile}
 
 ```{=latex}
 \begin{minted}{nix}
@@ -1145,10 +1083,7 @@ Introducing: the module system!
 \end{minted}
 ```
 
-```
-```
-
-## "Overridability"---Commando mode
+## "Overridability"---Commando mode{.fragile}
 
 ```{=latex}
 \begin{minted}{nix}
@@ -1161,9 +1096,6 @@ Introducing: the module system!
 \end{minted}
 ```
 
-```
-```
-
 Otherwise, you can just copy and edit the official module file.
 
 ::: notes
@@ -1173,7 +1105,144 @@ Otherwise, you can just copy and edit the official module file.
 
 :::
 
-## Assertions
+## Defining our own modules{.fragile}
+
+The true module structure:
+
+```{=latex}
+\begin{minted}{nix}
+{ ... }:
+{
+  imports = [ /* ... */ ];
+  options = { /* ... */ };
+  config = { /* ... */ };
+}
+\end{minted}
+```
+
+## Defining our own modules---API{.fragile}
+
+```{=latex}
+\begin{minted}[lastline=10]{nix}
+{ lib, pkgs, config, ... }:
+with lib;
+{
+  options.services.myService = {
+    enable = mkEnableOption "myService, awesomeness incarnated";
+
+    port = mkOption {
+      type = types.port; # = ints.u16
+      default = 1337
+      description = "The listen port for this service";
+    };
+  };
+}
+\end{minted}
+```
+
+::: notes
+
+- Whether to enable "myService, awesomeness incarnated"
+
+
+:::
+
+## Defining our own modules---API{.fragile}
+
+```{=latex}
+\begin{minted}[firstline=4,lastline=16]{nix}
+{ lib, pkgs, ... }:
+{
+  options.services.myService = with lib; {
+    package = mkOption {
+      type = types.package;
+      default = pkgs.myPackage;
+      defaultText = "pkgs.myPackage";
+      description = "The package to use for this service";
+    };
+
+    user = mkOption {
+      type = with types; nullOr string;
+      default = null;
+      description = "The user this service will run as.";
+    };
+  }; # options.services.myService
+};
+\end{minted}
+```
+
+## Defining our own modules---Implementation{.fragile}
+
+```{=latex}
+\begin{minted}[firstline=3,lastline=10]{nix}
+{ lib, pkgs, ... }:
+{
+  config = let
+    cfg = config.services.myService;
+  in
+    mkIf cfg.enable {
+      systemd.services.myService = {
+        description = "My awesome service";
+        wantedBy = [ "multi-user.target" ];
+
+      };
+    };
+}
+\end{minted}
+```
+
+## Defining our own modules---Implementation{.fragile}
+
+```{=latex}
+\begin{minted}[firstline=5,lastline=13]{nix}
+{ lib, pkgs, ... }:
+{
+    config = mkIf cfg.enable {
+      systemd.services.myService = {
+        serviceConfig = {
+          ExecStart =
+            "${cfg.package}/bin/myserviced --port ${toString cfg.port}"
+        } // (if isNull cfg.user then {
+          DynamicUser = true;
+        } else {
+          User = cfg.user;
+        });
+      }; # systemd.services.myService
+    };
+}
+\end{minted}
+```
+
+## Defining our own modules---Implementation{.fragile}
+
+```{=latex}
+\begin{minted}[firstline=4,lastline=13]{nix}
+{ lib, pkgs, ... }:
+{
+    config = mkIf cfg.enable {
+      users.users = mkIf (!isNull cfg.user) {
+        "${cfg.user}".uid = 42; # < don't do that
+      };
+    }; # config
+} # The end!
+\end{minted}
+```
+
+::: notes
+
+- We can't go around assigning random UIDs because:
+	- It's not deterministic
+	- If done deterministically (ie. not randomly, but by assigning the first
+	  free UID), a UID can change between rebuilds, and can  introduces file
+	  permission issues.
+- So we have a list of fixed UIDs, so that each service has their own UIDs,
+  forever, for everyone
+- The list is quite big, which is why `DynamicUser`s are so important for NixOS
+
+
+:::
+
+## Assertions{.fragile}
 
 ```{=latex}
 \begin{minted}{text}
@@ -1183,12 +1252,16 @@ Failed assertions:
 \end{minted}
 ```
 
-```
+## More Assertions{.fragile}
+
+```{=late}
+\begin{minted}{nix}
+\end{minted}
 ```
 
 # The embedded world
 
-## Proper project structure
+## Proper project structure{.fragile}
 
 <https://github.com/illegalprime/nixos-on-arm>
 
@@ -1212,13 +1285,11 @@ $ nix build -f default.nix \
 \end{minted}
 ```
 
-```
-```
-
 ## TODO
 
 - [x] Use good Markdown / Beamer template
 - [ ] Pinning repo version
+- [ ] `a.b.c` = `a = { b = { c = ...;  }; };`
 - [x] How to use different versions
 - [ ] Modules can call other modules (and that's what they do **all** the time)
 - [ ] How to build an image
