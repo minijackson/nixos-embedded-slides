@@ -36,6 +36,8 @@ header-includes: |
   \usemintedstyle{dracula}
   \definecolor{mybg}{rgb}{0.207843, 0.219608, 0.27451}
   \setminted{bgcolor=mybg,tabsize=4,breaklines}
+
+  \setmonofont{Fira Code}[ItalicFont={Latin Modern Mono 10 Italic}]
   ```
 ---
 
