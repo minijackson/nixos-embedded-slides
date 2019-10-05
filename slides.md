@@ -909,23 +909,9 @@ Introducing: the module system!
 - Will add a PreStart script that generates the host key if non-existent
 - Allow the 22 tcp port in the firewall (special ssh case)
 - sshd PAM module
-- Note: this configuration alone is two lines away from compiling:
 
 
 :::
-
-## Being pedantic{.fragile}
-
-```{=latex}
-\begin{minted}{nix}
-{ ... }:
-{
-  fileSystems."/".fsType = "tmpfs";
-  boot.loader.grub.enable = false;
-  services.openssh.enable = true;
-}
-\end{minted}
-```
 
 ## Customizing the SSH server config{.fragile}
 
@@ -1213,6 +1199,13 @@ with lib;
 \end{minted}
 ```
 
+::: notes
+
+Sorry if the formatting is horrible, it had to fit in one slide.
+
+
+:::
+
 ## Defining our own modules---Implementation{.fragile}
 
 ```{=latex}
@@ -1230,6 +1223,7 @@ with lib;
 
 ::: notes
 
+- **Ask me a question about the UID situation at the end of the talk**
 - We can't go around assigning random UIDs because:
 	- It's not deterministic
 	- If done deterministically (ie. not randomly, but by assigning the first
