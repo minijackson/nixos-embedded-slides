@@ -170,10 +170,10 @@ of the "package function".
 
 - Use the Nix language to write derivations
 
-  Derivation
+  Derivation:
   : Data structure that describes how to create an output path (file / directory)
 
-- The derivation is compiled into a `.drv` file.
+- The derivation is compiled into a `.drv` file (evaluation).
 - Realising a derivation creates the output path
 - The closure of an output path is the path and all its dependencies
 
@@ -213,7 +213,7 @@ of the "package function".
 /nix/store/486r3d12gc042yric302jg14in7j3jwm-i3.conf
 ```
 
-## Nix---Language (Types){.fragile}
+## Nix---Language (Types){.fragile .shrink}
 
 ```{=latex}
 \begin{minted}{nix}
@@ -226,6 +226,7 @@ of the "package function".
     initial indentation is removed!
   '';
   "attribute set" = { a = 1; b = 2; };
+  a.b.c = 1; # same as a = { b = { c = 1; }; };
   list = [ 1 2 "hello" ];
   function = a: toString a;
   "function w/ named parameters" = { a, b, c ? "default"}: a;
@@ -454,10 +455,10 @@ derive2 {
   name = "ggplot2";
   version = "3.2.0";
   sha256 = "1cvk9pw...";
-  depends = [ digest gtable lazyeval
-    MASS mgcv reshape2 rlang
-    scales tibble viridisLite
-    withr ];
+  depends = [ digest gtable
+    lazyeval MASS mgcv reshape2
+    rlang scales tibble
+    viridisLite withr ];
 };
 \end{minted}
 ```
@@ -496,9 +497,7 @@ stdenv.mkDerivation rec {
   nativeBuildInputs = [ cmake ninja ];
 
   cmakeFlags = stdenv.lib.optional (!static) "-DBUILD_SHARED_LIBS=ON";
-  # src = ...;
-  # patches = [ ... ];
-  # meta = ...;
+  # src = ...; patches = ...; meta = ...;
 }
 \end{minted}
 ```
@@ -548,11 +547,11 @@ in
 \end{minted}
 ```
 
-We run:
+- We run:
 
 ```{=latex}
 \begin{minted}{console}
-$ nix build --file default.nix
+roger@os $ nix build --file default.nix
 \end{minted}
 ```
 
@@ -590,7 +589,7 @@ We get as output path:
 
 ```{=latex}
 \begin{minted}{console}
-$ ./result/bin/myScript
+slartibartfast@magrathea $ ./result/bin/myScript
 Hello, World!
 \end{minted}
 ```
@@ -606,7 +605,7 @@ Hello, World!
 
 ```{=latex}
 \begin{minted}{console}
-$ ls -l result
+slartibartfast@magrathea $ ls -l result
 result -> /nix/store/a7db5d4v5b2pxppl8drb30ljx9z0kwg0-myScript
 \end{minted}
 ```
@@ -644,8 +643,7 @@ let
     overlays = [
       (self: super: {
         myAlias = super.pandoc;
-        inherit (super.llvmPackages_7)
-          clang libclang llvm;
+        inherit (super.llvmPackages_7) clang libclang llvm;
         myPackage = self.callPackage ./myProject/default.nix { };
       } )
     ];
@@ -730,6 +728,7 @@ exec -a "$0" "/nix/store/...-kodi-18.1/bin/.kodi-wrapped" \
 
 ::: notes
 
+- *Strategic pause*
 - This is actually called by another wrapper who tells Kodi where to find its
   data.
 - Everything you see here is automated, writing derivations is much much less
@@ -742,7 +741,7 @@ exec -a "$0" "/nix/store/...-kodi-18.1/bin/.kodi-wrapped" \
 
 ```{=latex}
 \begin{minted}{console}
-$ readelf -d coreutils
+PinkiePie@Equestria $ readelf -d coreutils
 ...
 Bibliothèque partagée: [librt.so.1]
 Bibliothèque partagée: [libpthread.so.0]
@@ -784,19 +783,47 @@ functools.reduce(
 
 :::
 
+## Shelling out{.fragile}
+
+```{=latex}
+\begin{minted}{console}
+roger@os $ nix-shell '<nixpkgs>' -A openssh
+roger@os (nix-shell) $ echo $src
+/nix/store/...-openssh-7.9p1.tar.gz
+roger@os (nix-shell) $ pkg-config --cflags openssl
+-I/nix/store/...-openssl-1.0.2t-dev/include
+roger@os (nix-shell) $ unpackPhase
+...
+roger@os (nix-shell) $ configurePhase
+...
+\end{minted}
+```
+
+::: notes
+
+- pkg-config is here because it's in the native build inputs
+- There is also the concept of nix-shell scripts, which declare their
+  dependencies, and Nix will download and provide the dependencies before
+  running the script.
+
+
+:::
+
 # NixOS
 
 ## How do you make a Linux distribution out of that?
 
 - A distribution is a bunch of files
+
 - In the end, the Nix package manager creates files
+
 - Let's use Nix to create *every* (non user data) file
 
 ## Adding yourself to the environment---Symbolic links{.fragile}
 
 ```{=latex}
 \begin{minted}{console}
-$ ls -l /etc/static/ssh/ssh_config
+roger@os $ ls -l /etc/static/ssh/ssh_config
 /etc/static/ssh/ssh_config -> /nix/store/...-etc-ssh_config
 \end{minted}
 ```
@@ -838,7 +865,7 @@ Type=simple
 
 ```{=latex}
 \begin{minted}{console}
-$ echo $PATH
+roger@os $ echo $PATH
 /home/minijackson/bin:
 /run/wrappers/bin:
 /home/minijackson/.nix-profile/bin:
@@ -1010,8 +1037,7 @@ Introducing: the module system!
 
 ```{=latex}
 \begin{minted}{nix}
-{ ... }:
-{
+{ ... }: {
   containers = {
     myContainer = {
       config = { ... }: { services.postgresql.enable = true; };
@@ -1203,7 +1229,7 @@ with lib;
 
 ::: notes
 
-Sorry if the formatting is horrible, it had to fit in one slide.
+- Sorry if the formatting is horrible, it had to fit in one slide.
 
 
 :::
@@ -1241,19 +1267,140 @@ Sorry if the formatting is horrible, it had to fit in one slide.
 ## Assertions{.fragile}
 
 ```{=latex}
-\begin{minted}{text}
+\begin{minted}{md}
 Failed assertions:
-- services.xserver.xkbOptions = "eurosign:e" is useless on fr/ch
-  layouts and plays badly with bépo
+- The ‘fileSystems’ option does not specify your root file system.
+- You must set the option ‘boot.loader.grub.devices’ or
+  'boot.loader.grub.mirroredBoots' to make the system bootable.
 \end{minted}
 ```
 
-## More Assertions{.fragile}
+## More Assertions
 
-```{=late}
+- *Synaptics and libinput are incompatible, you cannot enable both* (in
+  `services.xserver`).
+
+- *CONFIG_ZRAM is not built as a module!* (in `zramSwap`)
+
+- *Yubikey and GPG Card may not be used at the same time.* (in
+  `boot.initrd.luks`)
+
+- *Trusted GRUB does not have EFI support* (in `boot.loader.grub`)
+
+## Assertion implementations{.fragile}
+
+```{=latex}
 \begin{minted}{nix}
+# in module configuration
+{
+  assertions = [
+    { assertion = any (fs: fs.mountPoint == "/") fileSystems;
+      message = "The ‘fileSystems’ option does not specify your root file system.";
+    }
+  ];
+}
 \end{minted}
 ```
+
+
+::: notes
+
+Yes, these assertions are also a NixOS module!
+
+
+:::
+
+## Module tests{.fragile}
+
+```{=latex}
+\begin{minted}{nix}
+import ./make-test.nix ({ ... }: {
+  name = "myService";
+  machine = { ... }: {
+    services.myService.enable = true;
+  };
+
+  testScript = ''
+    $machine->waitForUnit('myService.service');
+    $machine->waitForOpenPort('1337');
+    $machine->succeed("curl --fail http://localhost:1337/");
+  '';
+})
+\end{minted}
+```
+
+::: notes
+
+- Will create a VM with the given config, and run the Perl script on that
+
+
+:::
+
+## Module tests, The Empire Strikes Back{.fragile}
+
+```{=latex}
+\begin{minted}{nix}
+import ./make-test.nix ({ pkgs, ... } : {
+  name = "kernel-latest";
+  machine = { pkgs, ... }: {
+    boot.kernelPackages = pkgs.linuxPackages_latest;
+  };
+
+  testScript = ''
+    $machine->succeed("uname -s | grep 'Linux'");
+    $machine->succeed("uname -a | grep '${pkgs.linuxPackages_latest.kernel.version}'");
+  '';
+})
+\end{minted}
+```
+
+## Module tests, Return of the Jedi{.fragile}
+
+```{=latex}
+\begin{minted}[lastline=13]{nix}
+import ./make-test.nix ({ pkgs, ... } : with pkgs.lib; {
+  name = "Bridge";
+  nodes.client1 = { pkgs, ... }: {
+    virtualisation.vlans = [ 1 ];
+    networking = {
+      useDHCP = false;
+      interfaces.eth1.ipv4.addresses = [ {
+        address = "192.168.1.2/24"; prefixLength = 24
+      } ];
+    };
+  };
+  nodes.client2 = { /* same but in vlan 2 @ 192.168.1.3 */ };
+  nodes.router = { /* bridges the vlans 1 and 2 */ };
+})
+\end{minted}
+```
+
+## Module tests, The Phantom Menace{.fragile}
+
+Test script:
+
+```{=latex}
+\begin{minted}{perl}
+startAll;
+# Wait for networking to come up
+$client1->waitForUnit("network.target");
+$client2->waitForUnit("network.target");
+$router->waitForUnit("network.target");
+# Test bridging
+$client1->waitUntilSucceeds("ping -c 1 192.168.1.1");
+$client1->waitUntilSucceeds("ping -c 1 192.168.1.2");
+$client1->waitUntilSucceeds("ping -c 1 192.168.1.3");
+# Same with client2 and router
+\end{minted}
+```
+
+::: notes
+
+- There are even the possibilities of:
+	- Taking a screenshot
+	- Running OCR on screenshot
+
+:::
 
 # The embedded world
 
@@ -1275,60 +1422,158 @@ Failed assertions:
 
 ```{=latex}
 \begin{minted}{console}
-$ nix build -f default.nix \
+roger@os $ nix build -f default.nix \
     -I machine=./machines/MY_BOARD \
     -I image=./images/MY_CONFIGURATION
 \end{minted}
 ```
 
-## TODO
+## Building an iso image{.fragile}
 
-- [x] Use good Markdown / Beamer template
-- [ ] Pinning repo version
-- [ ] `a.b.c` = `a = { b = { c = ...;  }; };`
-- [x] How to use different versions
-- [ ] Modules can call other modules (and that's what they do **all** the time)
-- [ ] How to build an image
-- [ ] Add some images to temporise the talk
-- [ ] Talk about service tests!!!
-	- [ ] Single-node
-	- [ ] Multi-node
-- [ ] Add derivation example with compilation options
-- [ ] Add intro? about problems that I had in Buildroot (non-determinism, no
-  auto-recompile)
-- [ ] Talk about nix-shell
-- [ ] Talk about nix-shell scripts
-- [ ] Talk about nixops
-- [ ] Talk about choosing generation at boot
-- [ ] Have a functional programming intro
-- [ ] You **don't** need to run NixOS to develop with Nix
-- [ ] https://r13y.com/
-- [ ] Drawbacks
-	- [ ] Harder to compile anything, especially packages with bad build systems
-	- [ ] If one package doesn't compile, harder to compile the system, since
-	  it's a dependency of the system closure
-	- [ ] You need deeper understanding of the ecosystem to package random
-	  programs
-	- [ ] Sometimes need to patch software to bypass hardcoded paths (e.g.
-	  locale archive)
-	- [ ] For now, only world readable store, makes it kinda harder for
-	  passwords and other secrets
-	- Documentation / developer experience is sub-optimal
-- [ ] A burnable image is just a file that depends on every package of your
-  system
-	- [ ] instead of depending manually on each package, we depend on the
-	  top-level system closure (output and all dependencies)
+```{=latex}
+\begin{minted}{nix}
+{ ... }:
+{
+  imports = [
+    <nixpkgs/nixos/modules/installer/cd-dvd/sd-image.nix>
+  ];
 
-## The End {.standout}
+  # ---8<---
+}
+\end{minted}
+```
+
+```{=latex}
+\begin{minted}{console}
+roger@os $ nix build -f default.nix config.system.build.sdImage
+\end{minted}
+```
+
+::: notes
+
+- Yes, it's a module again!
+- In the end an image is just a file that depends on your system
+- The sd-image module just uses the result of the `toplevel` derivation
+
+
+:::
+
+## Other useful features
+
+- Repository pinning (a.k.a. just clone `nixpkgs`)
+
+- Cross System (**no need to be on NixOS**)
+	- i686-linux / x86_64-linux
+	- x86_64-darwin (MacOS)
+	- *Beta*: aarch64-linux / FreeBSD
+
+- Rollbacks
+
+- Declarative deployments (NixOps)
+
+::: notes
+
+- To rollback, you can just switch to the previous configuration, either by
+  manually changing the config files, or choosing a previous configuration at
+  boot
+
+:::
+
+# Recap
+
+## 4ever Drawbacks
+
+### Packaging
+
+- The language is alien
+- harder (depends on the software / stack)
+	- *1304 out of 1321 (98.71%) paths in the minimal installation image are
+	  reproducible*[^1]
+- You need deeper understanding of the ecosystem
+- Sometimes need to patch software to bypass hardcoded paths (e.g. locale archive)
+- No "smart" recompilation of dependents
+
+[^1]: <https://r13y.com/>
+
+::: notes
+
+- Not reprodocible paths includes:
+	- Python bytecode with timestamps
+	- Some autotools
+	- EFI stuff
+
+:::
+
+### NixOS
+
+- You can't compile part of a system without changing your configuration (all
+  or nothing)
+- If something doesn't work, you will need to dive into the abstractions
+- Non POSIX compliant
+
+
+::: notes
+
+- The final systems depends on the success of all derivations
+- Non POSIX compliant means more work to make some tools work
+- Another way to see it, NixOS does things so differently, and developers don't
+  tend to take that into account.
+
+
+:::
+
+## Current drawbacks
+
+- Documentation / developer experience is sub-optimal
+
+- Maturity (especially for Embedded)
+
+- For now, only world readable store, makes it kinda harder for passwords and
+  other secrets
+
+- Cross compilation is not well tested / integrated
+
+
+::: notes
+
+- Reading the code because the documentation isn't there yet happens way too
+  much.
+
+
+:::
+
+## Un-talked Advantages
+
+- Made out of simple building blocks
+	- Makes it possible to develop tools
+- Hydra
+	- Safe binary cache
+	- Distributed builds
+- Distributed Nix store
+- Very strong Haskell community for some reason :-)
+- Usage as a server or workstation
+- "Works for me" \rightarrow "Works for everybody"
+
+
+## The End{.standout}
 
 That's all folks!
 
----
+## {.standout}
 
 Questions?
 
-Slide sources
+```{=latex}
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+```
+
+Slide sources:
  ~ <https://github.com/minijackson/nixos-embedded-slides/>
+
+
+```{=latex}
+\begin{center}\rule{0.5\linewidth}{\linethickness}\end{center}
+```
 
 :::::: {.columns}
 ::: {.column width="40%"}
