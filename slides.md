@@ -1452,6 +1452,7 @@ roger@os $ nix build -f default.nix config.system.build.sdImage
 	- i686-linux / x86_64-linux
 	- x86_64-darwin (MacOS)
 	- *Beta*: aarch64-linux / FreeBSD
+	- *Alpha*: any POSIX-compliant system, and wtf Windows?
 
 - Rollbacks
 
@@ -1462,6 +1463,11 @@ roger@os $ nix build -f default.nix config.system.build.sdImage
 - To rollback, you can just switch to the previous configuration, either by
   manually changing the config files, or choosing a previous configuration at
   boot
+- *Beta* / *Alpha* qualification mine
+- The Nix package manager should run fine on any of those platforms, but
+  nixpkgs definitely doesn't support every POSIX system equally, or Windows
+  (even though there are Windows aware packages in nixpkgs)
+
 
 :::
 
@@ -1540,6 +1546,7 @@ roger@os $ nix build -f default.nix config.system.build.sdImage
 - Usage as a server or workstation
 - "Works for me" \rightarrow "Works for everybody"
 - Profiles
+- Multi-user package management
 
 
 ## The End{.standout}
