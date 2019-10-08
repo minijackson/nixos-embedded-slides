@@ -102,7 +102,7 @@ Hydra
 
 NixOps
 
-: NixOS cloud deployment tool
+: NixOS machine deployment tool
 
 Disnix
 
@@ -116,13 +116,6 @@ Hydra
   like deploying automated Debian repository. No more need to compile Chromium
   on each individual developer machine.
 
-NixOps
-
-: Like Amazon EC2
-
-Disnix
-
-: More like Chef / Puppet for multiple hosts
 
 :::
 
@@ -143,26 +136,19 @@ Disnix
 ::: notes
 
 - Based on the ML family
-
 - A package is a function that depends on its dependencies, compile time
   options, etc.
-
 - Most of the time, "how to build a path" implies building the package, and
   then installing into that path
-
 - The hash is the sha256 of the configuration of the package, meaning the result
 of the "package function".
-
 - A package which has the same hash does **not** need to be recompiled
-
 - When you have multiple versions of the same package, they are under different
   store paths, and it can mean
 	- different upstream version
 	- different compilation options
 	- different applied patches
 	- different anything that would make the files in the output path different
-
-**TODO**: have a section to show off how to *use* different versions
 
 :::
 
@@ -1553,6 +1539,7 @@ roger@os $ nix build -f default.nix config.system.build.sdImage
 - Very strong Haskell community for some reason :-)
 - Usage as a server or workstation
 - "Works for me" \rightarrow "Works for everybody"
+- Profiles
 
 
 ## The End{.standout}
